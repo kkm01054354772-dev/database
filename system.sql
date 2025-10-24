@@ -3,10 +3,10 @@
 -- hr 사용자 생성 => c##hr
 ALTER SESSION SET "_oracle_script"=TRUE;
 
+-- @C:\db-sample-schemas-main\human_resources\hr_install.SQL
+-- @C:\app\soldesk\product\21c\dbhomeXE\rdbms\admin\scott.SQL
+-- sys AS sysdba
 
-
-@C:\db-sample-schemas-main\human_resources\hr_install.SQL
-@C:\app\soldesk\product\21c\dbhomeXE\rdbms\admin\scott.SQL
 
 
 
