@@ -1,7 +1,13 @@
+--SQL
+-- 1. 데이터 정의 언어(DDL : Data Define Language)
+-- 2. 데이터 조작 언어(DML : Data Manipulation Language) :SELECT(조회), INSERT(입력), UPDATE(수정), DELETE(삭제) => CRUD
+-- 3. 데이터 제어 언어(DCL : Data Control Language)
+
+
 --sql 구문은 대소문자를 구분하지 않는다.
 --단, 비밀번호는 대소문자 구분함
-
--- 조회(select)
+---------------------------- 데이터 조작 언어(DML) ----------------------------------
+---------------------------- 조회(select) ----------------------------------
 -- select 컬럼명 => 5
 -- from 테이블명 => 1
 -- where 조건절 => 2
@@ -830,3 +836,305 @@ WHERE (E.DEPTNO ,E.SAL)  IN (SELECT E2.DEPTNO, MAX(E2.SAL) FROM EMP e2 GROUP BY 
 SELECT E.EMPNO ,E.ENAME ,E.JOB ,E.DEPTNO ,D.DNAME ,D.LOC 
 FROM EMP e JOIN DEPT d ON E.DEPTNO =D.DEPTNO 
 WHERE E.DEPTNO =10 AND E.JOB NOT IN (SELECT E2.JOB FROM EMP e2 WHERE E2.DEPTNO =30);
+
+
+---------------------------- 입력(insert) ----------------------------------
+-- insert : 테이블에 데이터 추가
+
+-- 연습용 테이블 생성
+CREATE TABLE DEPT_TEMP EMP AS SELECT * FROM dept;  -- 구조 + 데이터
+CREATE TABLE EMP_TEMP AS SELECT * FROM EMP WHERE 1<>1; -- 구조만 복사
+
+
+
+SELECT * FROM DEPT_TEMP ORDER BY DEPTNO ASC;
+
+--INSERT INTO 테이블명(열이름1, 열이름2, ...) VALUES (값1, 값2, ...)
+-- 50번, DATABASE, SEOUL 데이터 추가
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME, LOC) VALUES (50,'DATABASE','SEOUL');
+-- 열이름 생략가능  단, 모든 열의 값이 지정되어야 함.
+INSERT INTO DEPT_TEMP VALUES (60,'NETWORK','BUSAN');
+-- 데이터의 값으로 NULL을 넣고 싶을 경우 명시적 선언, 공백, 암시적 처리 가능
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME, LOC) VALUES (70,'WEB',NULL);
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME, LOC) VALUES (80,'MOBILE','');
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME) VALUES (90,'OS');
+
+
+
+SELECT * FROM EMP_TEMP ;
+
+INSERT INTO EMP_TEMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) 
+VALUES(1111,'성춘향','MANAGER',9999,'2010-10-25',4000,NULL,20);
+
+INSERT INTO EMP_TEMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) 
+VALUES(9999,'홍길동','PRESIDENT',NULL,'2000-01-25',8000,1000,10);
+
+INSERT INTO EMP_TEMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) 
+VALUES(2222,'김수호','MANAGER',9999,SYSDATE,4000,NULL,30);
+
+-- 다른 테이블에서 값을 가져올 수 있음
+-- EMP 테이블에서 S.GRADE가 1인 사원만 EMP_TEMP로 삽입 // VALUES 안씀 
+INSERT INTO EMP_TEMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO)
+SELECT E.EMPNO , E.ENAME, E.JOB , E.MGR , E.HIREDATE , E.SAL , E.COMM , E.DEPTNO 
+FROM EMP e JOIN SALGRADE s ON E.SAL BETWEEN S.LOSAL AND S.HISAL AND S.GRADE = 1; 
+
+
+---------------------------- 수정(update) ----------------------------------
+-- UPDATE 테이블명 SET 열이름 = 값, 열이름2 = 값 WHERE 수정할 조건
+
+SELECT * FROM DEPT_TEMP dt ORDER BY DT.DEPTNO ASC;
+SELECT * FROM EMP_TEMP et ;
+
+-- 10번 부서의 LOC를 NEW YORK -> SEOUL
+UPDATE DEPT_TEMP dt SET DT.LOC = 'SEOUL' WHERE dt.DEPTNO =10;
+
+-- EMP_TEMP 테이블의 사원 중에서 SAL이 2500이하인 사원만 추가수당 50으로 수정
+UPDATE EMP_TEMP et SET et.COMM = 50 WHERE ET.SAL<=2500;
+
+-- DEPT 테이블의 40번 부서의 DNAME, LOC 정보를 가져와서 DEPT_TEMP 40번 부서의 내용으로 변경
+UPDATE DEPT_TEMP dt SET (DT.DNAME, DT.LOC) = (SELECT D.DNAME , D.LOC FROM DEPT d WHERE D.DEPTNO =40 ) WHERE DT.DEPTNO =40;
+
+
+
+---------------------------- 삭제(delete) ----------------------------------
+--DELETE (FROM) 테이블명 WHERE
+
+CREATE TABLE EMP_TEMP2 AS SELECT * FROM EMP;
+
+SELECT * FROM EMP_TEMP2 et ;
+
+-- FROM 생략 가능
+-- 7902 사원 삭제
+DELETE EMP_TEMP2 WHERE EMPNO=7902;
+-- 7844 사원 삭제
+DELETE FROM EMP_TEMP2 WHERE EMPNO=7844;
+
+
+
+-- EMP 테이블을 복사하여 EXAM_EMP 테이블 생성
+CREATE TABLE EXAM_EMP AS SELECT * FROM EMP;
+-- DEPT 테이블을 복사하여 EXAM_DEPT 테이블 생성
+CREATE TABLE EXAM_DEPT AS SELECT * FROM DEPT;
+-- SALGRADE 테이블을 복사하여 EXAM_SALGRADE 테이블 생성
+CREATE TABLE EXAM_SALGRADE AS SELECT * FROM SALGRADE;
+-- EXAM_DEPT 테이블에 50,60,70,80번 부서를 등록하는 SQL구문 작성
+-- 50, ORACLE, BUSAN
+-- 60, SQL, ILSAN
+-- 70, SELECT, INCHEON
+-- 80, DML, BUNDANG
+INSERT INTO EXAM_DEPT VALUES (50,'ORACLE','BUSAN');
+INSERT INTO EXAM_DEPT VALUES (60,'SQL','ILSAN');
+INSERT INTO EXAM_DEPT VALUES (70,'SELECT','INCHEON');
+INSERT INTO EXAM_DEPT VALUES (80,'DML','BUNDANG');
+-- EXAM_EMP 테이블에 8명의 사원정보를 등록하는 SQL 구문 작성
+-- 8명은 임의의 값(부서번호는 50~80 사이로 지정)
+INSERT INTO EXAM_EMP VALUES (8001,'A','MANAGER',7839,'2025-10-05',2000,NULL,50);
+INSERT INTO EXAM_EMP VALUES (8002,'B','MANAGER',7839,'2025-10-05',2500,NULL,50);
+INSERT INTO EXAM_EMP VALUES (8003,'C','MANAGER',7839,'2025-10-10',2000,NULL,60);
+INSERT INTO EXAM_EMP VALUES (8004,'D','MANAGER',7839,'2025-10-20',2000,NULL,60);
+INSERT INTO EXAM_EMP VALUES (8005,'E','MANAGER',7839,'2025-10-21',2500,NULL,60);
+INSERT INTO EXAM_EMP VALUES (8006,'F','MANAGER',7839,'2025-10-21',2500,NULL,60);
+INSERT INTO EXAM_EMP VALUES (8007,'G','MANAGER',7839,'2025-10-21',2500,NULL,60);
+INSERT INTO EXAM_EMP VALUES (8008,'H','MANAGER',7839,'2025-10-21',2900,NULL,60);
+-- EXAM_EMP에서 50번 부서에 근무하는 사원의 평균 급여보다 많이 받는 사원을 70번 부서로 옮기는 SQL 구문 작성
+UPDATE EXAM_EMP ee SET EE.DEPTNO = 70 WHERE EE.SAL > (SELECT AVG(EE2.SAL) FROM EXAM_EMP ee2 WHERE EE2.DEPTNO =50); 
+-- EXAM_EMP에 속한 사원 중 입사일이 가장 빠른 60번 부서 사원보다 늦게 입사한 사원의 급여를 10% 인상하고 80번 부서로 옮기는 SQL구문 작성
+UPDATE EXAM_EMP ee SET EE.SAL= 1.1*EE.SAL, EE.DEPTNO = 80 WHERE EE.HIREDATE > (SELECT MIN(EE2.HIREDATE) FROM EXAM_EMP ee2 WHERE EE.DEPTNO =60 );
+-- EXAM_EMP에 속한 사원 중 급여 등급이 5인 사원을 삭제하는 SQL 구문 작성
+DELETE EXAM_EMP WHERE EMPNO IN (SELECT EE.EMPNO  FROM EXAM_EMP ee JOIN SALGRADE s ON EE.SAL BETWEEN S.LOSAL AND S.HISAL AND S.GRADE =5);
+
+
+------ DML : INSERT, UPDATE, DELETE => 데이터 변경이 일어나는 작업
+-- 트랜잭션 : 하나의 단위로 데이터 처리
+-- ROLLBACK; 되돌리기
+-- COMMIT; 데이터베이스 반영 // DBeaver 기본설정 : AUTO COMMIT
+
+CREATE TABLE DEPT_TCL AS SELECT * FROM DEPT;
+SELECT * FROM DEPT_TCL;
+
+
+INSERT INTO DEPT_TCL VALUES (50,'DATABASE','SEOUL');
+UPDATE DEPT_TCL SET LOC='BUSAN' WHERE DEPTNO=40;
+DELETE FROM DEPT_TCL WHERE DNAME='RESEARCH';
+SELECT * FROM DEPT_TCL;
+ROLLBACK; -- 롤백
+
+COMMIT; -- 반영 후에는 롤백 불가능함
+
+-- 세션 : 데이터베이스 접속을 시작으로 작업을 수행한 후 접속을 종료하기까지 전체 기간을 의미
+SELECT * FROM DEPT_TCL;
+
+DELETE FROM DEPT_TCL WHERE DEPTNO=50;
+
+COMMIT;
+
+UPDATE DEPT_TCL SET LOC='SEOUL' WHERE DEPTNO=30;
+
+SELECT * FROM DEPT_TCL; -- 트랜잭션 종료 시까지 다른 세션에서의 데이터 조작이 불가능함
+
+COMMIT;
+
+
+---------------------------- 데이터 정의어(DDL) ----------------------------------
+-- 객체를 생성(CREATE), 변경(ALTER), 삭제(DROP)하는 명령어
+-------- 테이블 --------
+-- (1) 테이블 생성 :CREATE
+
+-- 타입
+-- 	문자 : CHAR / NCHAR /VARCHAR2 / NVARCHAR2
+--			ㄴ 고정크기      ㄴ 가변크기
+-- 		  CHAR(10) : abc => 10자리를 그대로 사용
+--		  VARCHAR2(10) : abc => 3자리를 사용
+-- 		  VARCHAR2(10) : 안녕하세요 => 입력불가 (10 BYTE까지 가능)
+-- 	      NVARCHAR2(10) : 안녕하세요 => 입력가능 (10글자까지 가능)
+--	숫자 : NUMBER(7,2) : 소수 둘째짜리 포함 7자리 숫자 지정 가능
+--	날짜 : DATE
+
+-- 테이블명 : '문자'로 시작, 특수문자(_, $, #), 숫자 가능 / 예약어(select, order, from)는 사용 불가능
+-- 열이름 : '문자'로 시작, 특수문자(_, $, #), 숫자 가능 / 예약어(select, order, from)는 사용 불가능
+
+-- 1. 기존 테이블 구조 이용
+CREATE TABLE DEPT_TCL AS SELECT * FROM DEPT;
+CREATE TABLE DEPT_TCL AS SELECT * FROM WHERE 1<>1;
+-- 2. 자료형을 정의하여 새 테이블 생성
+CREATE TABLE EMP_DDL(
+EMPNO NUMBER(4), 
+ENAME VARCHAR2(10),
+JOB VARCHAR2(9), 
+MGR NUMBER(4), 
+HIREDATE DATE, 
+SAL NUMBER(7, 2), 
+COMM NUMBER(7, 2),
+DEPTNO NUMBER(2)
+);
+
+-- (2) 테이블 변경 : ALTER
+-- 1. 열 추가 : ADD
+-- 2. 열 이름 변경 : RENAME COLUMN
+-- 3. 열 자료형 변경 : MODIFY
+-- 4. 열 삭제 :DROP COLUMN
+-- 테이블 이름 변경 : RENAME 테이블명 TO 변경할 테이블명
+
+-- HP 열 추가
+ALTER TABLE EMP_DDL ADD HP VARCHAR2(20);
+SELECT * FROM EMP_DDL ed ;
+
+-- HP => TEL 열 이름 변경
+ALTER TABLE EMP_DDL RENAME COLUMN HP TO TEL;
+SELECT * FROM EMP_DDL ed ;
+
+-- EMPNO(4) => EMPNO(5) 변경
+ALTER TABLE EMP_DDL MODIFY EMPNO NUMBER(5);
+
+-- TEL COLUMN 제거
+ALTER TABLE EMP_DDL DROP COLUMN TEL;
+SELECT * FROM EMP_DDL ed ;
+
+-- EMP_DDL => EMP_RENAME 테이블 이름 변경
+RENAME EMP_DDL TO EMP_RENAME;
+SELECT * FROM EMP_RENAME ed ;
+
+-- (3) 테이블 삭제 : DROP
+DROP TABLE EMP_RENAME;
+
+
+
+-- MEMBER 테이블 생성
+-- ID 가변문자열(15)
+-- PASSWORD 가변문자열(20)
+-- NAME 가변문자열(10)
+-- TEL 가변문자열(15)
+-- EMAIL 가변문자열(20)
+-- AGE 숫자(4)
+CREATE TABLE MEMBER(ID VARCHAR2(15), PASSWORD VARCHAR2(20), NAME VARCHAR2(10), TEL VARCHAR2(15), EMAIL VARCHAR2(20), AGE NUMBER(4)); 
+
+-- BIGO 열 추가 : 가변 문자열 (10)
+ALTER TABLE MEMBER ADD BIGO VARCHAR2(10);
+-- BIGO 열 크기 변경 : (30)
+ALTER TABLE MEMBER MODIFY BIGO VARCHAR2(30);
+-- BIGO 열 이름을 REMARK로 변경
+ALTER TABLE MEMBER RENAME COLUMN BIGO TO REMARK;
+
+SELECT * FROM MEMBER;
+
+
+-------- 인덱스 --------
+-- 인덱스 : 테이블 검색 성능 향상
+-- 인덱스 사용 여부
+-- (1) 테이블 풀 스캔 : 처음부터 끝까지 검색
+-- (2) 인덱스 스캔 : 인덱스 사용한 검색
+SELECT * FROM EMP WHERE EMPNO=7844 ;
+
+-- 인덱스 생성
+CREATE INDEX IDX_EMP_SAL ON EMP(SAL);
+-- 인덱스 삭제
+DROP INDEX IDX_EMP_SAL;
+
+-------- 뷰 --------
+-- 뷰 : 가상 테이블
+-- 	   하나 이상의 테이블을 조회하는 SELECT문을 저장한 객체
+-- 1. 보안성
+-- 2. 편의성 : SQL 구문을 단순화
+
+-- CREATE VIEW 뷰이름(열이름, 열이름2, ...) AS 저장할 SELECT문 WITH CHECK OPTION 제약조건 WITH READ ONLY 제약조건
+CREATE VIEW VIEW_EMP20 AS SELECT EMPNO, ENAME, JOB, DEPTNO FROM EMP WHERE DEPTNO = 20;
+CREATE VIEW VIEW_EMP_READ AS SELECT EMPNO, ENAME, JOB, DEPTNO FROM EMP WITH READ ONLY;
+
+INSERT INTO VIEW_EMP20 VALUES(7777,'홍길동','SALESMAN',10); -- VIEW에 작업을 해도 원본에 반영됨
+SELECT * FROM VIEW_EMP20; 
+SELECT * FROM EMP;  -- 정보가 업데이트 됨
+
+-- USER_ : 현재 데이터베이스에 접속한 사용자가 소유한 객체 정보
+SELECT * FROM USER_TABLES;
+SELECT * FROM USER_UPDATABLE_COLUMNS WHERE TABLE_NAME='VIEW_EMP20';
+
+SELECT * FROM VIEW_EMP_READ;
+INSERT INTO VIEW_EMP_READ VALUES(7777,'홍길동','SALESMAN',10); -- 읽기전용에서는 작업 불가능
+
+-- DROP VIEW 뷰 이름
+
+DROP VIEW VIEW_EMP20 ;
+DROP VIEW VIEW_EMP_READ;
+
+-------- 시퀀스 --------
+-- 시퀀스 (MYSQL limit)
+-- Oracle DB에서 특정 규칙에 따른 연속 숫자를 생성하는 객체
+-- CREATE  SEQUENCE 시퀀스명;
+-- INCREMENT BY N (기본값 : 1)
+-- START WITH N (기본값 : 1)
+-- MAXVALUE N | NOMAXVALUE
+-- MINVALUE N | NOMINVALUE
+-- CYCLE | NOCYCLE
+-- CACHE N : NOCACHE
+
+CREATE SEQUENCE SEQ_DEPT_SEQUENCE
+INCREMENT BY 10
+START WITH 10
+MAXVALUE 90
+MINVALUE 0
+NOCYCLE
+CACHE 2;
+
+ALTER SEQUENCE SEQ_DEPT_SEQUENCE
+INCREMENT BY 3
+MAXVALUE 99
+CYCLE;
+
+CREATE TABLE DEPT_SEQUENCE AS SELECT * FROM DEPT WHERE 1<>1;
+
+INSERT INTO DEPT_SEQUENCE VALUES (SEQ_DEPT_SEQUENCE.NEXTVAL, 'DATABASE', 'SEOUL');
+INSERT INTO DEPT_SEQUENCE VALUES (SEQ_DEPT_SEQUENCE.NEXTVAL, 'NETWORK', 'BUSAN');
+
+-- SEQUENCE.NEXTVAL : 다음 시퀀스
+-- SEQUENCE.CURRVAL : 현재 시퀀스
+SELECT SEQ_DEPT_SEQUENCE.CURRVAL FROM DUAL;
+SELECT * FROM DEPT_SEQUENCE ORDER BY DEPTNO ASC;
+
+-------- 동의어 --------
+-- 동의어 : SYNONYM (별칭)
+-- 테이블, 뷰, 시퀀스 등 객체 이름 대신 사용할 수 있는 다른 이름 부여
+
+CREATE SYNONYM E FOR EMP;
+
+SELECT * FROM E;
+
