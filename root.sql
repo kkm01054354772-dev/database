@@ -64,10 +64,84 @@ select * from customer order by store_id desc, first_name asc limit 10 offset 10
 create database if not exists EXAM;
 use EXAM;
 -- 테이블 생성
+-- 데이터 유형
+--  숫자형 : TINYINT(1byte), SMALLINT(2byte), MEDIUMINT(3byte), INT(4byte), BIGINT(8byte)
+--	실수형 : 고정소수점 방식 : DECIMAL / NUMERIC
+--			부동소수점 방식 : FLOAT, DOUBLE
+--	문자형 : CHAR(n) - 고정길이문자열
+--			VARCHAR(n) 
+--	날짜형 : TIME, DATE, DATETIME, TIMESTAMP
+
 create table TABLE1(COL1 INT, COL2 VARCHAR(50), COL3 DATETIME);
-
+-- primary key 존재하는 테이블 생성
 create table TABLE2(COL1 INT auto_increment primary key, COL2 VARCHAR(50), COL3 DATETIME);
-
+-- COL1은 입력하지 않으면 자동으로 증가하면서 값이 생성됨
+insert into TABLE2 (COL2,COL3) values ('TEST','2025-10-29');
+-- 직접 값을 지정해줄 수도 있음
+insert into TABLE2 (COL1,COL2,COL3) values (3,'TEST','2025-10-29');
+-- 그 다음 숫자부터 들어감 // 4
 insert into TABLE2 (COL2,COL3) values ('TEST','2025-10-29');
 
 select * from TABLE2;
+
+-- 현재 auto_increment로 생성된 마지막 값 확인 // 4
+select last_insert_id();
+
+-- auto_increment 시작값 변경
+alter table TABLE2 auto_increment = 100;
+-- 100부터 시작
+insert into TABLE2 (COL2,COL3) values ('TEST','2025-10-29');
+-- auto_increment 증가값 변경 // 같은 DB내의 다른 테이블에도 영향을 미치기 때문에 사용에 주의
+set @@auto_increment_increment =5;
+-- 5씩 증가
+insert into TABLE2 (COL2,COL3) values ('TEST','2025-10-29'); 
+-- 원상복구
+set @@auto_increment_increment =1;
+
+
+
+-- 테이블 복사
+select * from EXAM_INSERT_SELECT_FROM;
+select * from EXAM_INSERT_SELECT_TO;
+select * from EXAM_SELECT_NEW;
+
+create table EXAM_INSERT_SELECT_FROM(COL1 INT, COL2 VARCHAR(10));
+create table EXAM_INSERT_SELECT_TO(COL1 INT, COL2 VARCHAR(10));
+
+insert into EXAM_INSERT_SELECT_FROM (COL1, COL2) values (1, 'Do');
+insert into EXAM_INSERT_SELECT_FROM (COL1, COL2) values (2, 'It');
+insert into EXAM_INSERT_SELECT_FROM (COL1, COL2) values (3, 'MySQL');
+
+--  FROM의 데이터를 To로 옮기기
+insert into EXAM_INSERT_SELECT_TO select * from EXAM_INSERT_SELECT_FROM;
+
+-- 테이블 생성과 동시에 데이터 옮기기 // AS
+create table EXAM_SELECT_NEW as select * from EXAM_INSERT_SELECT_FROM;
+
+-- 날짜형 타입들의 차이
+create table EXAM_DATE_TABLE(COL1 DATE, COL2 TIME, COL3 DATETIME, COL4 TIMESTAMP);
+insert into EXAM_DATE_TABLE values (NOW(),NOW(),NOW(),NOW());
+select * from EXAM_DATE_TABLE;
+
+
+
+-- Oracle : 사용자 => DB
+-- MySQL : DB // 사용자들에게 권한을 부여
+
+-- 사용자 생성 ------------------------------------------
+-- ID 대소문자 구분함
+
+-- localhost : 내 컴퓨터(로컬 접속만 가능)
+create user 'test1'@'localhost' identified by '12345';
+-- % : 모든 IP에서 접속 가능(외부 접속 허용)
+create user 'test1'@'%' identified by '12345';
+
+-- 권한 부여
+grant 권한목록 on DB.테이블 to '사용자이름'@'호스트'
+
+grant all privileges on exam.* to 'test1'@'localhost';
+-- 변경사항 반영
+flush privileges;
+
+-- 사용자 삭제
+drop user 'test1'@'localhost';
