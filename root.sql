@@ -132,14 +132,14 @@ select * from EXAM_DATE_TABLE;
 -- ID 대소문자 구분함
 
 -- localhost : 내 컴퓨터(로컬 접속만 가능)
-create user 'test1'@'localhost' identified by '12345';
+create user 'javadb'@'localhost' identified by '12345';
 -- % : 모든 IP에서 접속 가능(외부 접속 허용)
 create user 'test1'@'%' identified by '12345';
 
 -- 권한 부여
 grant 권한목록 on DB.테이블 to '사용자이름'@'호스트'
 
-grant all privileges on exam.* to 'test1'@'localhost';
+grant all privileges on exam.* to 'javadb'@'localhost';
 -- 변경사항 반영
 flush privileges;
 

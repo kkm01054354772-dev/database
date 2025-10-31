@@ -40,12 +40,12 @@ GRANT CONNECT, RESOURCE TO TEST2;
 
 -- 사용자 생성 ------------------------
 ALTER SESSION SET "_oracle_script"=TRUE; -- C##을 안붙이기 위한 조건
-CREATE USER TEST3 IDENTIFIED BY 12345 -- ID(대소문자 구분X) 비밀번호(대소문자 구분O)
+CREATE USER javadb IDENTIFIED BY 12345 -- ID(대소문자 구분X) 비밀번호(대소문자 구분O)
 DEFAULT TABLESPACE USERS 
 TEMPORARY TABLESPACE TEMP
-QUOTA 2M ON USERS --용량
+QUOTA 10M ON USERS --용량
 ;
-GRANT CONNECT, RESOURCE TO TEST3; -- 다양한 기본적 권한 부여
+GRANT CONNECT, RESOURCE TO javadb; -- 다양한 기본적 권한 부여
 ------------------------------------
 
 -- 사용자 삭제
